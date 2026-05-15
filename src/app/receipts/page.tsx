@@ -63,6 +63,12 @@ export default async function ReceiptsPage({
     return `${label}${arrow}`;
   }
 
+  const exportParams = new URLSearchParams();
+  if (vendor) exportParams.set("vendor", vendor);
+  if (sort) exportParams.set("sort", sort);
+  if (dir) exportParams.set("dir", dir);
+  const exportHref = `/api/receipts/export${exportParams.size ? `?${exportParams}` : ""}`;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -84,7 +90,12 @@ export default async function ReceiptsPage({
         )}
       </div>
 
-      <ReceiptUpload />
+      <div className="flex items-center justify-between">
+        <ReceiptUpload />
+        <Link href={exportHref} className="text-sm text-muted-foreground hover:underline">
+          Export CSV
+        </Link>
+      </div>
 
       <div className="rounded-lg border">
         <table className="w-full text-sm">
