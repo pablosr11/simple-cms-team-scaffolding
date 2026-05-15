@@ -5,6 +5,7 @@ import {
   type ReceiptExtractor,
   type ReceiptFile,
 } from "./types";
+import { resolveModelChain } from "./model-chain";
 
 const SYSTEM_PROMPT =
   "You extract structured data from receipts and invoices. " +
@@ -14,13 +15,16 @@ export function createOpenRouterExtractor(): ReceiptExtractor {
   const openrouter = createOpenRouter({
     apiKey: process.env.OPENROUTER_API_KEY,
   });
-  const modelId = process.env.OPENROUTER_MODEL || "openai/gpt-4o-mini";
+  const chain = resolveModelChain(process.env as Record<string, string | undefined>);
+  // chain[0] is the primary; the full array is passed as `models` so OpenRouter
+  // automatically falls back to the next entry on availability/rate-limit errors.
+  const modelId = chain[0];
 
   return {
     async extract(file: ReceiptFile) {
       const isPdf = file.mimeType === "application/pdf";
       const { object } = await generateObject({
-        model: openrouter(modelId),
+        model: openrouter(modelId, { models: chain }),
         schema: ReceiptExtractionSchema,
         system: SYSTEM_PROMPT,
         messages: [

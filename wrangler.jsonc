@@ -22,6 +22,7 @@
   "vars": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://nqyvbnnhjhpesjyhsntd.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xeXZibm5oamhwZXNqeWhzbnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4Mjk1NzUsImV4cCI6MjA5NDQwNTU3NX0.8mmfz8ocYGR8sHjKYl4Z-Q3ctl2_XAhoXD6E9IHtFsA",
-    "OPENROUTER_MODEL": "openai/gpt-4o-mini"
+    "OPENROUTER_MODEL": "google/gemini-3-flash-preview",
+    "OPENROUTER_FALLBACK_MODELS": "anthropic/claude-sonnet-4.6,openai/gpt-5.5"
   }
 }
