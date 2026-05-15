@@ -51,9 +51,11 @@ export default async function TeamPage() {
     const activeOrg = await getActiveOrg();
     if (!activeOrg || activeOrg.role !== "owner") return;
 
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     await sb.from("org_invites").insert({
       org_id: activeOrg.id,
       created_by: u.id,
+      expires_at: expiresAt,
     });
     revalidatePath("/team");
   }
