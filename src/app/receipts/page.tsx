@@ -22,9 +22,14 @@ type SortKey = keyof typeof SORT_COLUMN;
 export default async function ReceiptsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vendor?: string; sort?: string; dir?: string }>;
+  searchParams: Promise<{ vendor?: string; sort?: string; dir?: string; status?: string }>;
 }) {
-  const { vendor, sort, dir } = await searchParams;
+  const { vendor, sort, dir, status } = await searchParams;
+  const VALID_STATUSES = ["uploaded", "processing", "extracted", "failed"] as const;
+  type ValidStatus = (typeof VALID_STATUSES)[number];
+  const statusFilter = VALID_STATUSES.includes(status as ValidStatus)
+    ? (status as ValidStatus)
+    : undefined;
   const sortKey: SortKey | null =
     sort === "vendor" || sort === "date" ? sort : null;
   const ascending = dir !== "desc";
@@ -47,6 +52,7 @@ export default async function ReceiptsPage({
     ? query.order(SORT_COLUMN[sortKey], { ascending, nullsFirst: false })
     : query.order("created_at", { ascending: false });
   if (vendor) query = query.eq("vendor", vendor);
+  if (statusFilter) query = query.eq("status", statusFilter);
   const { data: receipts } = await query;
 
   function sortHref(key: SortKey) {
@@ -63,10 +69,20 @@ export default async function ReceiptsPage({
     return `${label}${arrow}`;
   }
 
+  function statusHref(s: string) {
+    const p = new URLSearchParams();
+    if (vendor) p.set("vendor", vendor);
+    if (sort) p.set("sort", sort);
+    if (dir) p.set("dir", dir);
+    if (s !== statusFilter) p.set("status", s);
+    return `/receipts?${p}`;
+  }
+
   const exportParams = new URLSearchParams();
   if (vendor) exportParams.set("vendor", vendor);
   if (sort) exportParams.set("sort", sort);
   if (dir) exportParams.set("dir", dir);
+  if (statusFilter) exportParams.set("status", statusFilter);
   const exportHref = `/api/receipts/export${exportParams.size ? `?${exportParams}` : ""}`;
 
   return (
@@ -75,19 +91,28 @@ export default async function ReceiptsPage({
         <h1 className="text-2xl font-semibold">
           Receipts {org ? `· ${org.name}` : ""}
         </h1>
-        {vendors.length > 0 && (
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {(["failed", "processing", "uploaded", "extracted"] as const).map((s) => (
+            <Link
+              key={s}
+              href={statusHref(s)}
+              className={`text-sm px-2 py-0.5 rounded-full border transition-colors ${statusFilter === s ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground hover:border-foreground"}`}
+            >
+              {s}
+            </Link>
+          ))}
+          {vendors.length > 0 && (
             <ReceiptVendorFilter vendors={vendors} selected={vendor} />
-            {vendor && (
-              <Link
-                href="/receipts"
-                className="text-sm text-muted-foreground hover:underline"
-              >
-                Clear
-              </Link>
-            )}
-          </div>
-        )}
+          )}
+          {(statusFilter || vendor) && (
+            <Link
+              href="/receipts"
+              className="text-sm text-muted-foreground hover:underline"
+            >
+              Clear
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
