@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getActiveOrg } from "@/lib/orgs";
 import { ReceiptUpload } from "@/components/receipt-upload";
 import { ReceiptVendorFilter } from "@/components/receipt-vendor-filter";
+import { DeleteReceiptButton } from "@/components/delete-receipt-button";
 import { Badge } from "@/components/ui/badge";
 
 const STATUS_VARIANT: Record<
@@ -101,13 +102,14 @@ export default async function ReceiptsPage({
               </th>
               <th className="p-3">Total</th>
               <th className="p-3">Status</th>
+              <th className="p-3"></th>
             </tr>
           </thead>
           <tbody>
             {(receipts ?? []).length === 0 ? (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={5}
                   className="p-6 text-center text-muted-foreground"
                 >
                   {vendor
@@ -136,6 +138,9 @@ export default async function ReceiptsPage({
                     <Badge variant={STATUS_VARIANT[r.status] ?? "outline"}>
                       {r.status}
                     </Badge>
+                  </td>
+                  <td className="p-3 text-right">
+                    <DeleteReceiptButton id={r.id} />
                   </td>
                 </tr>
               ))

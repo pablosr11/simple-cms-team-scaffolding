@@ -23,3 +23,7 @@ export async function getReceiptBytes(key: string): Promise<ArrayBuffer | null> 
   const obj = await bucket().get(key);
   return obj ? await obj.arrayBuffer() : null;
 }
+
+export async function deleteReceiptFile(key: string): Promise<void> {
+  await bucket().delete(key);
+}

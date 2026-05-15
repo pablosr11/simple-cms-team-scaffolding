@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { DeleteReceiptButton } from "@/components/delete-receipt-button";
 
 const UpdateSchema = z.object({
   vendor: z.string().trim().optional(),
@@ -85,11 +86,14 @@ export default async function ReceiptDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">
           {receipt.vendor ?? "Receipt"}
         </h1>
-        <Badge>{receipt.status}</Badge>
+        <div className="flex items-center gap-3">
+          <Badge>{receipt.status}</Badge>
+          <DeleteReceiptButton id={id} variant="detail" />
+        </div>
       </div>
 
       {receipt.status === "failed" && receipt.error ? (
