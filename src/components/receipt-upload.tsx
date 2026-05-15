@@ -1,51 +1,56 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function ReceiptUpload() {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    if (!(data.get("file") as File)?.size) {
-      toast.error("Choose a file first");
-      return;
-    }
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     setBusy(true);
+    const data = new FormData();
+    data.set("file", file);
     try {
       const res = await fetch("/api/receipts", { method: "POST", body: data });
       const json = (await res.json()) as { id?: string; error?: string };
       if (!res.ok) throw new Error(json.error ?? "Upload failed");
       toast.success("Receipt uploaded and processed");
-      form.reset();
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex items-center gap-3">
-      <Input
+    <label
+      aria-disabled={busy}
+      className={cn(
+        buttonVariants(),
+        "h-9 cursor-pointer px-4",
+        busy && "pointer-events-none opacity-50",
+      )}
+    >
+      {busy ? "Processing…" : "Upload receipt"}
+      <input
+        ref={inputRef}
         type="file"
         name="file"
         accept="image/jpeg,image/png,image/webp,application/pdf"
         disabled={busy}
-        className="max-w-xs"
+        onChange={onPick}
+        className="sr-only"
       />
-      <Button type="submit" disabled={busy}>
-        {busy ? "Processing…" : "Upload receipt"}
-      </Button>
-    </form>
+    </label>
   );
 }
