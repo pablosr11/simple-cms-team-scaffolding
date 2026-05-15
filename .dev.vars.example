@@ -1,0 +1,6 @@
+# Copy to .dev.vars — consumed by the Cloudflare runtime (miniflare) during
+# `next dev` and `pnpm preview`, exposing these via getCloudflareContext().
+OPENROUTER_API_KEY=
+OPENROUTER_MODEL=openai/gpt-4o-mini
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
