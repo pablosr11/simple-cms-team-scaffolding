@@ -13,7 +13,12 @@ export async function AppHeader() {
           Receipt Tracker
         </Link>
         {orgs.length > 0 && (
-          <OrgSwitcher orgs={orgs} activeId={active?.id} />
+          <>
+            <OrgSwitcher orgs={orgs} activeId={active?.id} />
+            <Link href="/team" className="text-sm text-muted-foreground hover:text-foreground">
+              Team
+            </Link>
+          </>
         )}
       </div>
       <form action="/auth/signout" method="post">
