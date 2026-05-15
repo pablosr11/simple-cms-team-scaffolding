@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
     ),
   ];
 
-  const ts = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const ts = new Date().toISOString().slice(0, 16).replace("T", "-").replace(":", ""); // YYYY-MM-DD-HHmm
   const scope = vendor ? vendor.replace(/[^a-z0-9]/gi, "_") : "all-vendors";
   const filename = `receipts-${scope}-${ts}.csv`;
 
