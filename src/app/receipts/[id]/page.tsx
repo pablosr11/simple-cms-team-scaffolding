@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { processReceipt } from "@/lib/services/process-receipt";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,15 @@ export default async function ReceiptDetailPage({
     .from("receipt_line_items")
     .select("*")
     .eq("receipt_id", id);
+
+  async function reExtract() {
+    "use server";
+    const sb = await createClient();
+    await sb.from("receipt_line_items").delete().eq("receipt_id", id);
+    await processReceipt(sb, id);
+    revalidatePath(`/receipts/${id}`);
+    redirect(`/receipts/${id}`);
+  }
 
   async function save(formData: FormData) {
     "use server";
@@ -92,6 +102,11 @@ export default async function ReceiptDetailPage({
         </h1>
         <div className="flex items-center gap-3">
           <Badge>{receipt.status}</Badge>
+          <form action={reExtract}>
+            <Button type="submit" variant="outline" size="sm">
+              Re-extract
+            </Button>
+          </form>
           <DeleteReceiptButton id={id} variant="detail" />
         </div>
       </div>
